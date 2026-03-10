@@ -12,19 +12,16 @@ Office.onReady(() => {
     console.log("Planner Add-in loaded");
 });
 
-function getMailData() {
-
-    const item = Office.context.mailbox.item;
-
-    console.log("Subject:", item.subject);
-
+function openTaskpane(event) {
+    console.log("Taskpane geöffnet");
+    event.completed();
 }
+
+Office.actions.associate("btnOpenTaskpane", openTaskpane);
 
 </script>
 
 </head>
-
 <body>
 </body>
-
 </html>
