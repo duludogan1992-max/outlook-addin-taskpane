@@ -1,86 +1,74 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>Planner Taskpane</title>
 
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 
 <style>
+
 html, body {
-    margin:0;
-    padding:0;
     width:100%;
     height:100%;
+    margin:0;
+    padding:0;
     overflow:hidden;
-    font-family: Arial, sans-serif;
+    background:#ffffff;
 }
 
-#loading {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100%;
-    font-size:16px;
+#appContainer{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
 }
 
-#appFrame {
-    display:none;
+iframe{
     width:100%;
     height:100%;
     border:none;
+    background:white;
 }
+
 </style>
 
 </head>
 
 <body>
 
-<div id="loading">
-Canvas App wird geladen...
+<div id="appContainer">
+    <iframe id="appFrame"></iframe>
 </div>
-
-<iframe id="appFrame"></iframe>
 
 <script>
 
 Office.onReady(function () {
 
-    try {
+    const baseUrl =
+    "https://apps.powerapps.com/play/e/47aba3a2-60ba-e280-9473-b85f528f9e51/a/7f2e2976-0acd-4e5d-82e9-985ca51db4e6?tenantId=3fae6102-8810-4484-9c8a-dcd3c1eaea68&source=iframe";
+
+    try{
 
         const item = Office.context.mailbox.item;
 
         const subject = encodeURIComponent(item?.subject || "");
         const itemId = encodeURIComponent(item?.itemId || "");
-        const mailbox = encodeURIComponent(Office.context.mailbox.userProfile?.emailAddress || "");
 
-        const powerAppUrl =
-        "https://apps.powerapps.com/play/e/47aba3a2-60ba-e280-9473-b85f528f9e51/a/7f2e2976-0acd-4e5d-82e9-985ca51db4e6?tenantId=3fae6102-8810-4484-9c8a-dcd3c1eaea68&hint=ae00626e-93eb-47ce-973c-4341b1051043&sourcetime=1773219962151&source=portal" +
-        "&source=iframe" +
+        const fullUrl =
+        baseUrl +
         "&subject=" + subject +
-        "&itemId=" + itemId +
-        "&mailbox=" + mailbox;
+        "&itemId=" + itemId;
 
-        const frame = document.getElementById("appFrame");
-
-        frame.src = powerAppUrl;
-
-        frame.onload = function () {
-            document.getElementById("loading").style.display = "none";
-            frame.style.display = "block";
-        };
+        document.getElementById("appFrame").src = fullUrl;
 
     }
-
-    catch (error) {
-
-        document.getElementById("loading").innerText =
-        "Fehler beim Laden der Canvas App.";
-
-        console.error(error);
-
+    catch{
+        document.getElementById("appFrame").src = baseUrl;
     }
 
 });
