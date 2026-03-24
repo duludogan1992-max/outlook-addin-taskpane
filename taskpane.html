@@ -63,17 +63,37 @@
     const baseUrl =
       "https://apps.powerapps.com/play/e/47aba3a2-60ba-e280-9473-b85f528f9e51/a/7f2e2976-0acd-4e5d-82e9-985ca51db4e6?tenantId=3fae6102-8810-4484-9c8a-dcd3c1eaea68&source=iframe";
 
+    function enc(v) {
+      return encodeURIComponent(v || "");
+    }
+
     function buildPowerAppUrl() {
       let subject = "";
       let itemId = "";
+      let restItemId = "";
       let mailbox = "";
 
       try {
         if (typeof Office !== "undefined" && Office.context && Office.context.mailbox) {
-          const item = Office.context.mailbox.item;
-          subject = encodeURIComponent(item?.subject || "");
-          itemId = encodeURIComponent(item?.itemId || "");
-          mailbox = encodeURIComponent(Office.context.mailbox.userProfile?.emailAddress || "");
+          const mbx = Office.context.mailbox;
+          const item = mbx.item;
+
+          subject = enc(item?.subject || "");
+          itemId = enc(item?.itemId || "");
+          mailbox = enc(mbx.userProfile?.emailAddress || "");
+
+          if (item?.itemId) {
+            try {
+              restItemId = enc(
+                mbx.convertToRestId(
+                  item.itemId,
+                  Office.MailboxEnums.RestVersion.v2_0
+                )
+              );
+            } catch (e) {
+              console.warn("REST-ID konnte nicht erzeugt werden:", e);
+            }
+          }
         }
       } catch (e) {
         console.warn("Kein Outlook-Kontext verfügbar:", e);
@@ -83,6 +103,7 @@
         baseUrl +
         "&subject=" + subject +
         "&itemId=" + itemId +
+        "&restItemId=" + restItemId +
         "&mailbox=" + mailbox
       );
     }
@@ -91,8 +112,7 @@
       const frame = document.getElementById("appFrame");
       const loading = document.getElementById("loading");
 
-      const url = buildPowerAppUrl();
-      frame.src = url;
+      frame.src = buildPowerAppUrl();
 
       frame.onload = function () {
         loading.style.display = "none";
